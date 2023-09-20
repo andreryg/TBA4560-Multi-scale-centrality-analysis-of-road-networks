@@ -16,6 +16,9 @@ def gather_road_data():
 
     detaljnivå_mask = ((veg['detaljnivå'] == 'Kjørebane') | (veg['detaljnivå'] == 'Kjørefelt'))
     veg = veg[~detaljnivå_mask]
+
+    kategori_mask = ((veg['vegkategori'] == 'K') | (veg['vegkategori'] == 'P'))
+    veg = veg[~kategori_mask]
     
     #veg.to_excel("veg-test.xlsx")
     return veg

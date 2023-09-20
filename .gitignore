@@ -1,6 +1,7 @@
 articles.txt
 articles/
 veg-test.xlsx
+~$veg-test.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
