@@ -3,6 +3,7 @@ from download_nvdb_data import gather_road_data
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import itertools
 
 def create_adjacency_list(road_dataframe):
     """
@@ -37,7 +38,29 @@ def remove_connecting_nodes(G, threshold=2):
             G.remove_node(node)
     return G
 
+def remove_roundabouts(dataframe):
+    updated_dataframe = dataframe[dataframe["typeVeg"] != "Rundkjøring"]
+    roundabouts = dataframe[dataframe["typeVeg"] == "Rundkjøring"]
+    temp = roundabouts[["gate", "startnode", "sluttnode"]]
+    print(temp.columns)
+    temp["gate"] = temp["gate"].astype(str)
+    unique_groups = temp["gate"].unique()
+    g = temp.groupby(["gate"])
+    for group in unique_groups:
+        roundabout = g.get_group(group)
+        print(roundabout)
+        nodes = set(list(roundabout["startnode"]) + list(roundabout["sluttnode"]))
+        relevant_nodes = []
+        for node in nodes:
+            if node in set(updated_dataframe["startnode"]) or node in set(updated_dataframe["sluttnode"]):
+                relevant_nodes.append(node)
+        print(relevant_nodes)
+        for node in relevant_nodes:
+            updated_dataframe = updated_dataframe.replace(node, relevant_nodes[0])
+    return updated_dataframe
+
 road_data = gather_road_data()
+road_data = remove_roundabouts(road_data)
 nodes = create_adjacency_list(road_data)
 G = nx.Graph(nodes)
 """for i in G.nodes():
