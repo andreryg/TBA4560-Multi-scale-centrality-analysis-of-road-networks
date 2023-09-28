@@ -4,10 +4,12 @@ import pandas as pd
 #from shapely import wkt
 #import matplotlib.pyplot as plt
 
-def gather_road_data():
+def gather_road_data(linestring, area=True):
     v = nvdbapiv3.nvdbVegnett()
     v.filter( { 'kommune' : 5001 } )
-    v.filter( {'kartutsnitt': '269834.722,7041016.566,271133.21,7042310.3'} )
+    a = str(linestring)[2:-2].replace(" ", ",").split(",")
+    b = [(x + " " + y) for x,y in zip(a[0::2], a[1::2])]
+    v.filter( {'polygon': str(b)[1:-1].replace("'", "")} )
     veg = pd.DataFrame(v.to_records())
 
     print(veg.head(5))
@@ -16,9 +18,10 @@ def gather_road_data():
 
     detaljnivå_mask = ((veg['detaljnivå'] == 'Kjørebane') | (veg['detaljnivå'] == 'Kjørefelt'))
     veg = veg[~detaljnivå_mask]
-
-    kategori_mask = ((veg['vegkategori'] == 'K') | (veg['vegkategori'] == 'P'))
-    veg = veg[~kategori_mask]
+    
+    if area:
+        kategori_mask = ((veg['vegkategori'] == 'K') | (veg['vegkategori'] == 'P'))
+        veg = veg[~kategori_mask]
     
     #veg.to_excel("veg-test.xlsx")
     return veg

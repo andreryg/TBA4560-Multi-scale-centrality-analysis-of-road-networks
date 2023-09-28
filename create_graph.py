@@ -59,7 +59,13 @@ def remove_roundabouts(dataframe):
             updated_dataframe = updated_dataframe.replace(node, relevant_nodes[0])
     return updated_dataframe
 
-road_data = gather_road_data()
+def read_csv_to_dataframe(file):
+    return pd.read_csv(file)
+
+stemmekretser = read_csv_to_dataframe("stemmekrets_csv.csv")
+area = list(stemmekretser.loc[stemmekretser['Stemmekretsnavn'] == 'Ila']['posList'])
+print(len(area[0]))
+road_data = gather_road_data(area, True)
 road_data = remove_roundabouts(road_data)
 nodes = create_adjacency_list(road_data)
 G = nx.Graph(nodes)
