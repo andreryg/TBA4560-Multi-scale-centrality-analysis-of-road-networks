@@ -26,16 +26,20 @@ def process_element_tolist(element):
 def xml_to_pandas(file):
     tree, root = read_xml(file)
     elements_list = []
-    i=0
     for element in root:
         if "boundedBy" not in element.tag:
             element_list = process_element_tolist(element)
             elements_list.append(dict((v,element_list[i]) for i,v in enumerate(['posList', 'Stemmekretsnummer', 'Stemmekretsnavn', 'Kommunenummer', 'Fylkesnummer'])))
-        if i == 4:
-            break
-        i += 1
     elements = pd.DataFrame(elements_list, columns=['posList', 'Stemmekretsnummer', 'Stemmekretsnavn', 'Kommunenummer', 'Fylkesnummer'])
-    print(elements)
+    elements.to_csv("stemmekrets_csv.csv", encoding='utf-8', index=False)
 
-xml_to_pandas("Basisdata_stemmekrets_områder.xml")
+    return True
+
+def read_csv(file):
+    dataframe = pd.read_csv(file)
+    return dataframe
+
+print(read_csv("stemmekrets_csv.csv"))
+
+#xml_to_pandas("Basisdata_stemmekrets_områder.xml")
 
