@@ -4,6 +4,7 @@ veg-test.xlsx
 ~$veg-test.xlsx
 Basisdata_stemmekrets_områder.xml
 stemmekrets_csv.csv
+nvdbapi-clientinfo.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

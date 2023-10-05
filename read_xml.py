@@ -31,7 +31,8 @@ def xml_to_pandas(file):
             element_list = process_element_tolist(element)
             elements_list.append(dict((v,element_list[i]) for i,v in enumerate(['posList', 'Stemmekretsnummer', 'Stemmekretsnavn', 'Kommunenummer', 'Fylkesnummer'])))
     elements = pd.DataFrame(elements_list, columns=['posList', 'Stemmekretsnummer', 'Stemmekretsnavn', 'Kommunenummer', 'Fylkesnummer'])
-    elements.to_csv("stemmekrets_csv.csv", encoding='utf-8', index=False)
+    print(elements['Stemmekretsnummer'])
+    elements.to_csv("stemmekrets_csv_test.csv", encoding='utf-8', index=False)
 
     return True
 
@@ -39,7 +40,7 @@ def read_csv(file):
     dataframe = pd.read_csv(file)
     return dataframe
 
-print(read_csv("stemmekrets_csv.csv"))
+#print(read_csv("stemmekrets_csv.csv"))
 
-#xml_to_pandas("Basisdata_stemmekrets_områder.xml")
+xml_to_pandas("Basisdata_stemmekrets_områder.xml")
 
