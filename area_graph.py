@@ -1,9 +1,12 @@
 from shapely import LineString, wkt, intersection
 from create_graph import read_csv_to_dataframe
-from download_nvdb_data import gather_road_data
+#from download_nvdb_data import gather_road_data
+from download_and_cut_nvdb_data import gather_road_data, overlay_polygon_with_road_data
 import networkx as nx
 import matplotlib.pyplot as plt
 import nvdbapiv3
+import pandas as pd
+import geopandas as gpd
 
 Trondheim = ["Nardo", "Elgeseter/Øya", "Åsveien", "Byåsen", "Singsaker", "Hallset", "Rosenborg", "Lademoen", "Lade", "Ila", "Midtbyen", "Blussuvoll", "Strindheim", "Eberg"]
 TrondheimNr = "5001"
@@ -73,11 +76,15 @@ for area in areas:
     a = [(x + " " + y) for x,y in zip(a[0::2], a[1::2])]
     a = ','.join(a)
     polygon_areas.append(wkt.loads("POLYGON(("+a+"))"))
-potential_connected_areas = find_connecting_areas(polygon_areas)
+veg = pd.read_excel("veg-test-5001.xlsx")
+#vegGDF = gpd.GeoDataFrame( veg, geometry='geometry', crs=5973 )
+overlay_polygon_with_road_data(veg, polygon_areas[0])
+
+"""potential_connected_areas = find_connecting_areas(polygon_areas)
 print(potential_connected_areas)
 ids_list = unique_roads(Trondheim, areas)
 connected_areas = common_road_segments(ids_list, potential_connected_areas)
 G = create_graph(connected_areas, Trondheim)
 print(G)
 nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold')
-plt.show()
+plt.show()"""

@@ -1,9 +1,6 @@
-import networkx as nx
-from download_nvdb_data import gather_road_data
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import itertools
+from shapely import wkt
+import networkx as nx
 
 def create_adjacency_list(road_dataframe):
     """
@@ -23,12 +20,6 @@ def create_adjacency_list(road_dataframe):
             break"""
 
     return adjacency_list
-
-def create_objektid_dict(road_dataframe):
-    objektid = {}
-    for ind in road_dataframe.index:
-        objektid.update({ind : str(road_dataframe["referanse"][ind])})
-    return objektid
 
 def remove_connecting_nodes(G, threshold=2):
     """
@@ -78,32 +69,43 @@ def read_csv_to_dataframe(file):
     """
     return pd.read_csv(file)
 
-if __name__ == "__main__":
-    stemmekretser = read_csv_to_dataframe("stemmekrets_csv.csv")
-    area = list(stemmekretser.loc[stemmekretser['Stemmekretsnavn'] == 'Eberg'].loc[stemmekretser['Kommunenummer'] == "5001"]['posList'])
-    print(len(area[0]))
-    road_data = gather_road_data(area, False, False)
-    road_data = remove_roundabouts(road_data)
-    nodes = create_adjacency_list(road_data)
-    objektid = create_objektid_dict(road_data)
-    G = nx.Graph(nodes)
-    G = nx.relabel_nodes(G, objektid, copy=True)
-    """for i in G.nodes():
-        print(i)
-        print(G.edges(i))"""
+def read_excel_to_dataframe(file):
+    """
+    Reads and returns a excel file as a dataframe. 
+    """
+    return pd.read_excel(file)
 
-    G.remove_edges_from(nx.selfloop_edges(G))
-    G = remove_connecting_nodes(G)
-    bc = nx.betweenness_centrality(G)
-    nx.set_node_attributes(G, bc, "cent_betweenness")
+def get_area_polygon(area_name, kommunenummer):
+    stemmekretser = read_csv_to_dataframe("stemmekrets_csv.csv")
+    areas = list(stemmekretser.loc[stemmekretser['Stemmekretsnavn'] == area_name].loc[stemmekretser['Kommunenummer'] == str(kommunenummer)]['posList'])
+    polygon_areas = []
+    for area in areas:
+        a = str(area).replace(" ", ",").split(",")
+        a = [(x + " " + y) for x,y in zip(a[0::2], a[1::2])]
+        a = ','.join(a)
+        polygon_areas.append(wkt.loads("POLYGON(("+a+"))"))
+    return polygon_areas[0]
+
+def create_color_map(G):
     color_map = []
     for node in G:
-        if G.nodes[node]["cent_betweenness"] < 0.2:
-            color_map.append('blue')
+        if G.nodes[node]["cent_betweenness"] < 0.1:
+            color_map.append('#ffe6e6')
+        elif G.nodes[node]["cent_betweenness"] < 0.2:
+            color_map.append('#ffb3b3')
+        elif G.nodes[node]["cent_betweenness"] < 0.3:
+            color_map.append('#ff8080')
+        elif G.nodes[node]["cent_betweenness"] < 0.4:
+            color_map.append('#ff4d4d')
         elif G.nodes[node]["cent_betweenness"] < 0.5:
-            color_map.append('yellow')
+            color_map.append('#ff1a1a')
+        elif G.nodes[node]["cent_betweenness"] < 0.7:
+            color_map.append('#e60000')
         else:
-            color_map.append('red')
-    nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
-    plt.show()
+            color_map.append('#b30000')
+    return color_map
 
+def calculate_centrality(G):
+    bc = nx.betweenness_centrality(G)
+    nx.set_node_attributes(G, bc, "cent_betweenness")
+    return G
