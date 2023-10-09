@@ -90,19 +90,19 @@ def create_color_map(G):
     color_map = []
     for node in G:
         if G.nodes[node]["cent_betweenness"] < 0.1:
-            color_map.append('#ffe6e6')
+            color_map.append('#ffd7cb')
         elif G.nodes[node]["cent_betweenness"] < 0.2:
-            color_map.append('#ffb3b3')
+            color_map.append('#ffccbc')
         elif G.nodes[node]["cent_betweenness"] < 0.3:
-            color_map.append('#ff8080')
+            color_map.append('#ffbda9')
         elif G.nodes[node]["cent_betweenness"] < 0.4:
-            color_map.append('#ff4d4d')
+            color_map.append('#ff9d81')
         elif G.nodes[node]["cent_betweenness"] < 0.5:
-            color_map.append('#ff1a1a')
+            color_map.append('#ff6c4d')
         elif G.nodes[node]["cent_betweenness"] < 0.7:
-            color_map.append('#e60000')
+            color_map.append('#ff3b24')
         else:
-            color_map.append('#b30000')
+            color_map.append('#ff0a0a')
     return color_map
 
 def calculate_centrality(G):

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import itertools
 from shapely import wkt
 
-def create_objektid_dict(road_dataframe):
+def create_objectid_dict(road_dataframe):
     objektid = {}
     for ind in road_dataframe.index:
         objektid.update({ind : str(road_dataframe["referanse"][ind])})
@@ -23,7 +23,7 @@ if __name__ == "__main__":
   
     road_data = remove_roundabouts(road_data)
     nodes = create_adjacency_list(road_data)
-    objektid = create_objektid_dict(road_data)
+    objektid = create_objectid_dict(road_data)
     G = nx.Graph(nodes)
     G = nx.relabel_nodes(G, objektid, copy=True)
     """for i in G.nodes():
