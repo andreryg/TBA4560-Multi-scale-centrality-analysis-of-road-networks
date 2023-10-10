@@ -1,4 +1,4 @@
-from graph_functions import calculate_centrality, create_adjacency_list, create_color_map, get_area_polygon
+from graph_functions import calculate_centrality, create_adjacency_list, create_color_map, get_area_polygon, basemap_plot
 from graph_functions import read_csv_to_dataframe, read_excel_to_dataframe, remove_connecting_nodes, remove_roundabouts
 from download_and_cut_nvdb_data import overlay_polygon_with_road_data
 import networkx as nx
@@ -53,14 +53,8 @@ def id_grouping(road_dataframe):
 
     return road_dataframe
 
-def basemap_plot(road_dataframe, color_map):
-    gdf = gpd.GeoDataFrame(road_dataframe, geometry='geometry', crs=5973)
-    ax = gdf.plot(alpha=0.5, edgecolor='k', color=color_map, linewidth=3)
-    cx.add_basemap(ax, crs=gdf.crs)#, source=cx.providers.CartoDB.Positron)#, source=cx.providers.Stamen.Toner)
-    plt.show()
-
 if __name__ == "__main__":
-    Område = "Nardo"
+    Område = "Midtbyen"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
     road_data = read_excel_to_dataframe(f"veg-test-{Kommunenummer}.xlsx")
@@ -78,7 +72,7 @@ if __name__ == "__main__":
     #G.remove_edges_from(nx.selfloop_edges(G))
     #G = remove_connecting_nodes(G)
     G = calculate_centrality(G)
-    color_map = create_color_map(G)
+    color_map, color_dict = create_color_map(G)
     basemap_plot(road_data, color_map)
     nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()

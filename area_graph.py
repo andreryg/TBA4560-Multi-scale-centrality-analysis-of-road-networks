@@ -65,7 +65,7 @@ def create_graph(connected_areas, list_of_area_names):
     return G
 
 def basemap_area_plot(areas, list_of_area_names, color_map):
-    print(color_map)
+    #print(color_map)
     df = pd.DataFrame({'Name': list_of_area_names, 'geometry': areas})
     gdf = gpd.GeoDataFrame(df, geometry='geometry', crs=5973)
     ax = gdf.plot(alpha=0.5, edgecolor='k', color=color_map)
@@ -94,7 +94,7 @@ ids_list = unique_roads(veg, Trondheim, polygon_areas)
 connected_areas = common_road_segments(ids_list, potential_connected_areas)
 G = create_graph(connected_areas, Trondheim)
 G = calculate_centrality(G)
-color_map = create_color_map(G)
+color_map, color_dict = create_color_map(G)
 basemap_area_plot(polygon_areas, Trondheim, color_map)
-nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
-plt.show()
+"""nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
+plt.show()"""

@@ -1,6 +1,9 @@
 import pandas as pd
 from shapely import wkt
 import networkx as nx
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import contextily as cx
 
 def create_adjacency_list(road_dataframe):
     """
@@ -88,24 +91,42 @@ def get_area_polygon(area_name, kommunenummer):
 
 def create_color_map(G):
     color_map = []
+    color_dict = {}
     for node in G:
         if G.nodes[node]["cent_betweenness"] < 0.1:
             color_map.append('#ffd7cb')
+            color_dict.update({node : '#ffd7cb'})
         elif G.nodes[node]["cent_betweenness"] < 0.2:
             color_map.append('#ffccbc')
+            color_dict.update({node : '#ffccbc'})
         elif G.nodes[node]["cent_betweenness"] < 0.3:
             color_map.append('#ffbda9')
+            color_dict.update({node : '#ffbda9'})
         elif G.nodes[node]["cent_betweenness"] < 0.4:
             color_map.append('#ff9d81')
+            color_dict.update({node : '#ff9d81'})
         elif G.nodes[node]["cent_betweenness"] < 0.5:
             color_map.append('#ff6c4d')
+            color_dict.update({node : '#ff6c4d'})
         elif G.nodes[node]["cent_betweenness"] < 0.7:
             color_map.append('#ff3b24')
+            color_dict.update({node : '#ff3b24'})
         else:
             color_map.append('#ff0a0a')
-    return color_map
+            color_dict.update({node : '#ff0a0a'})
+    return color_map, color_dict
 
 def calculate_centrality(G):
     bc = nx.betweenness_centrality(G)
     nx.set_node_attributes(G, bc, "cent_betweenness")
     return G
+
+def basemap_plot(road_dataframe, color_map):
+    try:
+        road_dataframe['geometry'] = road_dataframe['geometry'].apply(lambda x: wkt.loads(x))
+    except:
+        pass
+    gdf = gpd.GeoDataFrame(road_dataframe, geometry='geometry', crs=5973)
+    ax = gdf.plot(alpha=0.5, edgecolor='k', color=color_map, linewidth=3)
+    #cx.add_basemap(ax, crs=gdf.crs)#, source=cx.providers.CartoDB.Positron)#, source=cx.providers.Stamen.Toner)
+    plt.show()
