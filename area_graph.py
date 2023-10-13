@@ -72,6 +72,7 @@ def basemap_area_plot(areas, list_of_area_names, color_map):
     cx.add_basemap(ax, crs=gdf.crs)#, source=cx.providers.Stamen.TonerLite, zoom=10)
     plt.show()
 
+colors = ['#ffd7cb', '#ffccbc', '#ffbda9', '#ff9d81', '#ff6c4d', '#ff3b24', '#ff0a0a']
 stemmekretser = read_csv_to_dataframe("stemmekrets_csv.csv")
 areas = list(stemmekretser.loc[stemmekretser["Stemmekretsnavn"].isin(Trondheim)].loc[stemmekretser["Kommunenummer"] == TrondheimNr]["posList"])
 Trondheim = list(stemmekretser.loc[stemmekretser["Stemmekretsnavn"].isin(Trondheim)].loc[stemmekretser["Kommunenummer"] == TrondheimNr]["Stemmekretsnavn"])
@@ -94,7 +95,7 @@ ids_list = unique_roads(veg, Trondheim, polygon_areas)
 connected_areas = common_road_segments(ids_list, potential_connected_areas)
 G = create_graph(connected_areas, Trondheim)
 G = calculate_centrality(G)
-color_map, color_dict = create_color_map(G)
+color_map, color_dict = create_color_map(G, colors)
 basemap_area_plot(polygon_areas, Trondheim, color_map)
 """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
 plt.show()"""

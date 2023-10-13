@@ -12,10 +12,18 @@ def create_adjacency_list(road_dataframe):
     adjacency_list = {}
 
     for ind in road_dataframe.index:
-
-        adj_noder = road_dataframe.loc[((road_dataframe['startnode'] == road_dataframe['startnode'][ind]) | (road_dataframe['sluttnode'] == road_dataframe['startnode'][ind]) | (road_dataframe['startnode'] == road_dataframe['sluttnode'][ind]) | (road_dataframe['sluttnode'] == road_dataframe['sluttnode'][ind]))]
+        #Try directed graph by checking the lanes and then instead of the line under only check if 
+        if road_dataframe['feltoversikt'][ind] == "1":
+            adj_noder = road_dataframe.loc[((road_dataframe['startnode'] == road_dataframe['sluttnode'][ind]) & (road_dataframe['feltoversikt'] != "2") | (road_dataframe['sluttnode'] == road_dataframe['sluttnode'][ind]) & (road_dataframe['feltoversikt'] != "1"))]
+        elif road_dataframe['feltoversikt'][ind] == "2":
+            adj_noder = road_dataframe.loc[((road_dataframe['startnode'] == road_dataframe['startnode'][ind]) & (road_dataframe['feltoversikt'] != "2") | (road_dataframe['sluttnode'] == road_dataframe['startnode'][ind]) & (road_dataframe['feltoversikt'] != "1"))]
+        else:
+            adj_noder = road_dataframe.loc[((road_dataframe['startnode'] == road_dataframe['startnode'][ind]) & (road_dataframe['feltoversikt'] != "1") | (road_dataframe['sluttnode'] == road_dataframe['startnode'][ind]) & (road_dataframe['feltoversikt'] != "1") | (road_dataframe['startnode'] == road_dataframe['sluttnode'][ind]) & (road_dataframe['feltoversikt'] != "2") | (road_dataframe['sluttnode'] == road_dataframe['sluttnode'][ind]) & (road_dataframe['feltoversikt'] != "2"))]
         node_list = adj_noder.index.tolist()
-        node_list.remove(ind)
+        try:
+            node_list.remove(ind)
+        except:
+            pass
 
         adjacency_list.update({ind : node_list})
 
@@ -89,31 +97,31 @@ def get_area_polygon(area_name, kommunenummer):
         polygon_areas.append(wkt.loads("POLYGON(("+a+"))"))
     return polygon_areas[0]
 
-def create_color_map(G):
+def create_color_map(G, colors):
     color_map = []
     color_dict = {}
     for node in G:
         if G.nodes[node]["cent_betweenness"] < 0.1:
-            color_map.append('#ffd7cb')
-            color_dict.update({node : '#ffd7cb'})
+            color_map.append(colors[0])
+            color_dict.update({node : colors[0]})
         elif G.nodes[node]["cent_betweenness"] < 0.2:
-            color_map.append('#ffccbc')
-            color_dict.update({node : '#ffccbc'})
+            color_map.append(colors[1])
+            color_dict.update({node : colors[1]})
         elif G.nodes[node]["cent_betweenness"] < 0.3:
-            color_map.append('#ffbda9')
-            color_dict.update({node : '#ffbda9'})
+            color_map.append(colors[2])
+            color_dict.update({node : colors[2]})
         elif G.nodes[node]["cent_betweenness"] < 0.4:
-            color_map.append('#ff9d81')
-            color_dict.update({node : '#ff9d81'})
+            color_map.append(colors[3])
+            color_dict.update({node : colors[3]})
         elif G.nodes[node]["cent_betweenness"] < 0.5:
-            color_map.append('#ff6c4d')
-            color_dict.update({node : '#ff6c4d'})
+            color_map.append(colors[4])
+            color_dict.update({node : colors[4]})
         elif G.nodes[node]["cent_betweenness"] < 0.7:
-            color_map.append('#ff3b24')
-            color_dict.update({node : '#ff3b24'})
+            color_map.append(colors[5])
+            color_dict.update({node : colors[5]})
         else:
-            color_map.append('#ff0a0a')
-            color_dict.update({node : '#ff0a0a'})
+            color_map.append(colors[6])
+            color_dict.update({node : colors[6]})
     return color_map, color_dict
 
 def calculate_centrality(G):

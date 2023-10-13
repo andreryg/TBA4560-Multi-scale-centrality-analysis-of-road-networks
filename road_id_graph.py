@@ -44,8 +44,8 @@ def id_grouping(road_dataframe):
 
     group = {}
     road_dataframe['referanse'] = road_dataframe['referanse'].apply(lambda x: x.split('-')[0])
-    road_dataframe['startnode'] = road_dataframe['startnode'].apply(lambda x: x.split('-')[0])
-    road_dataframe['sluttnode'] = road_dataframe['sluttnode'].apply(lambda x: x.split('-')[0])
+    #road_dataframe['startnode'] = road_dataframe['startnode'].apply(lambda x: x.split('-')[0])
+    #road_dataframe['sluttnode'] = road_dataframe['sluttnode'].apply(lambda x: x.split('-')[0])
     road_dataframe = road_dataframe[['referanse', 'startnode', 'sluttnode', 'geometry']].groupby('referanse').agg(agg_functions).reset_index()
     road_dataframe['geometry'] = road_dataframe['geometry'].apply(lambda x: linemerge([wkt.loads(y) for y in x.split('- ')]))
     road_dataframe['noder'] = road_dataframe['startnode'] + ', ' + road_dataframe['sluttnode']
@@ -54,6 +54,7 @@ def id_grouping(road_dataframe):
     return road_dataframe
 
 if __name__ == "__main__":
+    colors = ['#FFE9A1', '#FCD46A', '#F7C751', '#CD8736', '#9B4D21', '#691F11', '#050002']
     Område = "Midtbyen"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
@@ -65,14 +66,14 @@ if __name__ == "__main__":
     #road_data = remove_roundabouts(road_data)
     nodes = create_adjacency_list(road_data)
     objektid = create_objectid_dict(road_data)
-    G = nx.Graph(nodes)
+    G = nx.DiGraph(nodes)
     G = nx.relabel_nodes(G, objektid, copy=True)
     
 
     #G.remove_edges_from(nx.selfloop_edges(G))
     #G = remove_connecting_nodes(G)
     G = calculate_centrality(G)
-    color_map, color_dict = create_color_map(G)
+    color_map, color_dict = create_color_map(G, colors)
     basemap_plot(road_data, color_map)
     nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()
