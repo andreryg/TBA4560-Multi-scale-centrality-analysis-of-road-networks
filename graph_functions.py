@@ -3,7 +3,9 @@ from shapely import wkt
 import networkx as nx
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import matplotlib.gridspec
 import contextily as cx
+from collections import Counter
 
 def create_adjacency_list(road_dataframe):
     """
@@ -129,12 +131,71 @@ def calculate_centrality(G):
     nx.set_node_attributes(G, bc, "cent_betweenness")
     return G
 
-def basemap_plot(road_dataframe, color_map):
+def basemap_plot(road_dataframe, color_map, colors):
+    fig = plt.figure()
+    grid = matplotlib.gridspec.GridSpec(3,4, hspace=0.2, wspace=0.2)
+    left = fig.add_subplot(grid[:,:-2])
+    topright = fig.add_subplot(grid[:-2,2:])
+    middleright = fig.add_subplot(grid[1:-1,2:])
+    bottomright = fig.add_subplot(grid[2:,2:])
+    
     try:
         road_dataframe['geometry'] = road_dataframe['geometry'].apply(lambda x: wkt.loads(x))
     except:
         pass
     gdf = gpd.GeoDataFrame(road_dataframe, geometry='geometry', crs=5973)
-    ax = gdf.plot(alpha=0.5, edgecolor='k', color=color_map, linewidth=3)
-    #cx.add_basemap(ax, crs=gdf.crs)#, source=cx.providers.CartoDB.Positron)#, source=cx.providers.Stamen.Toner)
+    gdf.plot(ax=left, alpha=0.5, edgecolor='k', color=color_map, linewidth=3)
+    cx.add_basemap(left, crs=gdf.crs)#, source=cx.providers.CartoDB.Positron)#, source=cx.providers.Stamen.Toner)
+
+    centrality_plot_data = Counter(color_map)
+    print(road_dataframe.shape, len(color_map))
+    try:
+        centrality_plot_data["0-0.1"] = centrality_plot_data[colors[0]]
+        centrality_plot_data["0.1-0.2"] = centrality_plot_data[colors[1]]
+        centrality_plot_data["0.2-0.3"] = centrality_plot_data[colors[2]]
+        centrality_plot_data["0.3-0.4"] = centrality_plot_data[colors[3]]
+        centrality_plot_data["0.4-0.5"] = centrality_plot_data[colors[4]]
+        centrality_plot_data["0.5-0.6"] = centrality_plot_data[colors[5]]
+        centrality_plot_data["0.6-0.7"] = centrality_plot_data[colors[6]]
+        centrality_plot_data["0.7-1"] = centrality_plot_data[colors[7]]
+    except:
+        pass
+    try:
+        for i in colors:
+            del centrality_plot_data[i]
+    except:
+        pass
+    print(centrality_plot_data)
+    topright.bar(centrality_plot_data.keys(), centrality_plot_data.values())
+
+    road_dataframe['geometry_length'] = road_dataframe['geometry'].apply(lambda x: x.length)
+    print(max(road_dataframe['geometry_length'].values.tolist()))
+    ranges = [(0,10), (10,20), (20,30), (30,40), (40,50), (50,60), (60,70), (80,2000)]
+    length_range_data = {r: 0 for r in ranges}
+    for length in road_dataframe['geometry_length'].values:
+        for r in ranges:
+            if r[0] <= length < r[1]:
+                length_range_data[r] += 1
+    #print(length_range_data)
+    middleright.bar({str(key)[1:-1]: value for key,value in length_range_data.items()}.keys(), length_range_data.values())
+
+    scatter_betweenness_data = []
+    for i in color_map:
+        if i == colors[0]:
+            scatter_betweenness_data.append(0.1)
+        elif i == colors[1]:
+            scatter_betweenness_data.append(0.2)
+        elif i == colors[2]:
+            scatter_betweenness_data.append(0.3)
+        elif i == colors[3]:
+            scatter_betweenness_data.append(0.4)
+        elif i == colors[4]:
+            scatter_betweenness_data.append(0.5)
+        elif i == colors[5]:
+            scatter_betweenness_data.append(0.6)
+        elif i == colors[6]:
+            scatter_betweenness_data.append(0.7)
+        else:
+            scatter_betweenness_data.append(0.8)
+    bottomright.scatter(road_dataframe['geometry_length'].values.tolist(), scatter_betweenness_data)
     plt.show()

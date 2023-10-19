@@ -1,4 +1,4 @@
-from graph_functions import calculate_centrality, create_adjacency_list, create_color_map, get_area_polygon, basemap_plot
+from graph_functions import calculate_centrality, create_color_map, get_area_polygon, basemap_plot
 from graph_functions import read_csv_to_dataframe, read_excel_to_dataframe, remove_connecting_nodes, remove_roundabouts
 from download_and_cut_nvdb_data import overlay_polygon_with_road_data
 import networkx as nx
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     #road_data = remove_roundabouts(road_data)
     nodes = create_adjacency_list(road_data)
     objektid = create_objectid_dict(road_data)
-    G = nx.DiGraph(nodes)
+    G = nx.Graph(nodes)
     G = nx.relabel_nodes(G, objektid, copy=True)
     
 
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     #G = remove_connecting_nodes(G)
     G = calculate_centrality(G)
     color_map, color_dict = create_color_map(G, colors)
-    basemap_plot(road_data, color_map)
-    nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
-    plt.show()
+    basemap_plot(road_data, color_map, colors)
+    print(road_data.columns.values)
+    """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
+    plt.show()"""

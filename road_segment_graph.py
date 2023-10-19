@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print(road_data['color'])
     print(road_data['referanse'])
     road_data, color_map = color_nodes_without_color(road_data, G)
-    basemap_plot(road_data, color_map)
-    nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
-    plt.show()
+    basemap_plot(road_data, color_map, colors)
+    """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
+    plt.show()"""
 
