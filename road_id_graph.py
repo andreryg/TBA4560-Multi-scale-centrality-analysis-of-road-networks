@@ -55,7 +55,7 @@ def id_grouping(road_dataframe):
 
 if __name__ == "__main__":
     colors = ['#FFE9A1', '#FCD46A', '#F7C751', '#CD8736', '#9B4D21', '#691F11', '#050002']
-    Område = "Midtbyen"
+    Område = "Nardo"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
     road_data = read_excel_to_dataframe(f"veg-test-{Kommunenummer}.xlsx")

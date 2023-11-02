@@ -36,8 +36,8 @@ def color_nodes_without_color(road_dataframe, G):
 
 if __name__ == "__main__":
     colors = ['#ffd7cb', '#ffccbc', '#ffbda9', '#ff9d81', '#ff6c4d', '#ff3b24', '#ff0a0a']
-    colors = ['#FFE9A1', '#FCD46A', '#F7C751', '#CD8736', '#9B4D21', '#691F11', '#050002']
-    Område = "Midtbyen"
+    colors = ['#FFE9A1', '#CD8736', '#050002', '#CD8736', '#9B4D21', '#691F11', '#050002']
+    Område = "Singsaker"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
     road_data = read_excel_to_dataframe(f"veg-test-{Kommunenummer}.xlsx")
@@ -64,4 +64,5 @@ if __name__ == "__main__":
     basemap_plot(road_data, color_map, colors)
     """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()"""
+
 

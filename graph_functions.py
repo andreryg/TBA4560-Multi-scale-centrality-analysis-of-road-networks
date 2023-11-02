@@ -145,7 +145,7 @@ def basemap_plot(road_dataframe, color_map, colors):
         pass
     gdf = gpd.GeoDataFrame(road_dataframe, geometry='geometry', crs=5973)
     gdf.plot(ax=left, alpha=0.5, edgecolor='k', color=color_map, linewidth=3)
-    cx.add_basemap(left, crs=gdf.crs)#, source=cx.providers.CartoDB.Positron)#, source=cx.providers.Stamen.Toner)
+    #cx.add_basemap(left, crs=gdf.crs)#, source=cx.providers.CartoDB.Positron)#, source=cx.providers.Stamen.Toner)
 
     centrality_plot_data = Counter(color_map)
     print(road_dataframe.shape, len(color_map))

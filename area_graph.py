@@ -84,6 +84,7 @@ for area in areas:
     a = [(x + " " + y) for x,y in zip(a[0::2], a[1::2])]
     a = ','.join(a)
     polygon_areas.append(wkt.loads("POLYGON(("+a+"))"))
+print(polygon_areas)
 veg = read_excel_to_dataframe("veg-test-5001.xlsx")
 
 #vegGDF = gpd.GeoDataFrame( veg, geometry='geometry', crs=5973 )
