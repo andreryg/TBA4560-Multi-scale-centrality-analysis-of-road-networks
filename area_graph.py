@@ -28,7 +28,6 @@ def unique_roads(road_dataframe, list_of_area_names, areas):
     """
     Takes a list of area names and returns a 2d list of unique road_ids in the same order as input list. 
     """
-    print(len(list_of_area_names) == len(areas))
     ids = []
     for i,name in enumerate(list_of_area_names):
         print(name)
@@ -69,33 +68,29 @@ def basemap_area_plot(areas, list_of_area_names, color_map):
     df = pd.DataFrame({'Name': list_of_area_names, 'geometry': areas})
     gdf = gpd.GeoDataFrame(df, geometry='geometry', crs=5973)
     ax = gdf.plot(alpha=0.5, edgecolor='k', color=color_map)
-    cx.add_basemap(ax, crs=gdf.crs)#, source=cx.providers.Stamen.TonerLite, zoom=10)
+    cx.add_basemap(ax, crs=gdf.crs, source=cx.providers.CartoDB.Voyager)#, zoom=10)
     plt.show()
 
-colors = ['#ffd7cb', '#ffccbc', '#ffbda9', '#ff9d81', '#ff6c4d', '#ff3b24', '#ff0a0a']
+colors = ['#377eb8', '#feb24c', '#e41a1c']
 stemmekretser = read_csv_to_dataframe("stemmekrets_csv.csv")
 areas = list(stemmekretser.loc[stemmekretser["Stemmekretsnavn"].isin(Trondheim)].loc[stemmekretser["Kommunenummer"] == TrondheimNr]["posList"])
 Trondheim = list(stemmekretser.loc[stemmekretser["Stemmekretsnavn"].isin(Trondheim)].loc[stemmekretser["Kommunenummer"] == TrondheimNr]["Stemmekretsnavn"])
-print([len(i) for i in areas])
-print(Trondheim)
 polygon_areas = []
 for area in areas:
     a = str(area).replace(" ", ",").split(",")
     a = [(x + " " + y) for x,y in zip(a[0::2], a[1::2])]
     a = ','.join(a)
     polygon_areas.append(wkt.loads("POLYGON(("+a+"))"))
-print(polygon_areas)
 veg = read_excel_to_dataframe("veg-test-5001.xlsx")
 
 #vegGDF = gpd.GeoDataFrame( veg, geometry='geometry', crs=5973 )
 #overlay_polygon_with_road_data(veg, polygon_areas[0])
 
 potential_connected_areas = find_connecting_areas(polygon_areas)
-print(potential_connected_areas)
 ids_list = unique_roads(veg, Trondheim, polygon_areas)
 connected_areas = common_road_segments(ids_list, potential_connected_areas)
 G = create_graph(connected_areas, Trondheim)
-G = calculate_centrality(G)
+G, bc = calculate_centrality(G)
 color_map, color_dict = create_color_map(G, colors)
 basemap_area_plot(polygon_areas, Trondheim, color_map)
 """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)

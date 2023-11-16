@@ -35,9 +35,8 @@ def color_nodes_without_color(road_dataframe, G):
     return road_dataframe, color_map
 
 if __name__ == "__main__":
-    colors = ['#ffd7cb', '#ffccbc', '#ffbda9', '#ff9d81', '#ff6c4d', '#ff3b24', '#ff0a0a']
-    colors = ['#FFE9A1', '#CD8736', '#050002', '#CD8736', '#9B4D21', '#691F11', '#050002']
-    Område = "Singsaker"
+    colors = ['#377eb8', '#feb24c', '#e41a1c']
+    Område = "Midtbyen"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
     road_data = read_excel_to_dataframe(f"veg-test-{Kommunenummer}.xlsx")
@@ -55,13 +54,11 @@ if __name__ == "__main__":
 
     G.remove_edges_from(nx.selfloop_edges(G))
     G_conpact = remove_connecting_nodes(G.copy())
-    G_conpact = calculate_centrality(G_conpact)
+    G_conpact, bc = calculate_centrality(G_conpact)
     color_map, color_dict = create_color_map(G_conpact, colors)
     road_data['color'] = road_data['referanse'].apply(lambda x: color_dict.get(x, None))
-    print(road_data['color'])
-    print(road_data['referanse'])
     road_data, color_map = color_nodes_without_color(road_data, G)
-    basemap_plot(road_data, color_map, colors)
+    basemap_plot(road_data, color_map, colors, bc)
     """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()"""
 

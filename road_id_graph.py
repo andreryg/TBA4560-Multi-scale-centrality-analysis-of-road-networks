@@ -39,22 +39,26 @@ def id_grouping(road_dataframe):
     agg_functions = {
         'startnode': ', '.join,
         'sluttnode': ', '.join,
-        'geometry': '- '.join
+        'geometry': '- '.join,
+        'vegkategori': max#lambda x: x.value_counts().index[0]
     }
+    #print(road_dataframe.columns.values)
 
     group = {}
     road_dataframe['referanse'] = road_dataframe['referanse'].apply(lambda x: x.split('-')[0])
     #road_dataframe['startnode'] = road_dataframe['startnode'].apply(lambda x: x.split('-')[0])
     #road_dataframe['sluttnode'] = road_dataframe['sluttnode'].apply(lambda x: x.split('-')[0])
-    road_dataframe = road_dataframe[['referanse', 'startnode', 'sluttnode', 'geometry']].groupby('referanse').agg(agg_functions).reset_index()
+    print(road_dataframe.columns.values.tolist())
+    road_dataframe = road_dataframe[['referanse', 'startnode', 'sluttnode', 'vegkategori', 'geometry']].groupby('referanse').agg(agg_functions).reset_index()
     road_dataframe['geometry'] = road_dataframe['geometry'].apply(lambda x: linemerge([wkt.loads(y) for y in x.split('- ')]))
     road_dataframe['noder'] = road_dataframe['startnode'] + ', ' + road_dataframe['sluttnode']
     road_dataframe['noder'] = road_dataframe['noder'].apply(lambda x: list(set(x.split(', '))))
+    print(road_dataframe.columns.values)
 
     return road_dataframe
 
 if __name__ == "__main__":
-    colors = ['#FFE9A1', '#FCD46A', '#F7C751', '#CD8736', '#9B4D21', '#691F11', '#050002']
+    colors = ['#377eb8', '#feb24c', '#e41a1c']
     Område = "Nardo"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
@@ -72,9 +76,9 @@ if __name__ == "__main__":
 
     #G.remove_edges_from(nx.selfloop_edges(G))
     #G = remove_connecting_nodes(G)
-    G = calculate_centrality(G)
+    G, bc = calculate_centrality(G)
     color_map, color_dict = create_color_map(G, colors)
-    basemap_plot(road_data, color_map, colors)
+    basemap_plot(road_data, color_map, colors, bc)
     print(road_data.columns.values)
     """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()"""

@@ -10,7 +10,7 @@ import networkx as nx
 
 Trondheim = ["Nardo", "Elgeseter/Øya", "Åsveien", "Byåsen", "Singsaker", "Hallset", "Rosenborg", "Lademoen", "Lade", "Ila", "Midtbyen", "Blussuvoll", "Strindheim", "Eberg", "Charlottenlund", "Brundalen", "Åsvang", "Hoeggen", "Utleira", "Nidarvoll", "Sjetne", "Tonstad", "Breidablikk", "Romolslia", "Uglam", "Flatåsen", "Kolstad", "Stabbursmoen", "Åsheim"]
 TrondheimNr = "5001"
-colors = ['#ffd7cb', '#ffccbc', '#ffbda9', '#ff9d81', '#ff6c4d', '#ff3b24', '#ff0a0a']
+colors = ['#377eb8', '#feb24c', '#e41a1c']
 
 stemmekretser = read_csv_to_dataframe("stemmekrets_csv.csv")
 areas = list(stemmekretser.loc[stemmekretser["Stemmekretsnavn"].isin(Trondheim)].loc[stemmekretser["Kommunenummer"] == TrondheimNr]["posList"])
@@ -28,7 +28,7 @@ for area in areas:
 merged_area = unary_union(polygon_areas)
 
 road_data = read_excel_to_dataframe(f"veg-test-{TrondheimNr}.xlsx")
-road_data = overlay_polygon_with_road_data(road_data, merged_area, False, False)
+road_data = overlay_polygon_with_road_data(road_data, merged_area, True, False)
   
 road_data = id_grouping(road_data)
 nodes = create_adjacency_list(road_data)
@@ -39,7 +39,8 @@ G = nx.relabel_nodes(G, objektid, copy=True)
 
 #G.remove_edges_from(nx.selfloop_edges(G))
 #G = remove_connecting_nodes(G)
-G = calculate_centrality(G)
+G, bc = calculate_centrality(G)
+#print(bc)
 color_map, color_dict = create_color_map(G, colors)
-basemap_plot(road_data, color_map, colors)
+basemap_plot(road_data, color_map, colors, bc)
 print(road_data.columns.values)

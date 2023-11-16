@@ -2,11 +2,13 @@ articles.txt
 articles/
 veg-test.xlsx
 ~$veg-test.xlsx
+~$traffic-5001.xlsx
 Basisdata_stemmekrets_områder.xml
 stemmekrets_csv.csv
 nvdbapi-clientinfo.json
 dddd.xlsx
 veg-test-5001.xlsx
+traffic-5001.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
