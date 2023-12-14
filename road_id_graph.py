@@ -57,9 +57,9 @@ def id_grouping(road_dataframe):
 
     return road_dataframe
 
-if __name__ == "__main__":
+def main():
     colors = ['#377eb8', '#feb24c', '#e41a1c']
-    Område = "Nardo"
+    Område = "Midtbyen"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
     road_data = read_excel_to_dataframe(f"veg-test-{Kommunenummer}.xlsx")
@@ -77,8 +77,11 @@ if __name__ == "__main__":
     #G.remove_edges_from(nx.selfloop_edges(G))
     #G = remove_connecting_nodes(G)
     G, bc = calculate_centrality(G)
-    color_map, color_dict = create_color_map(G, colors)
-    basemap_plot(road_data, color_map, colors, bc)
+    color_map, color_dict, labels = create_color_map(G, colors)
+    gdf = basemap_plot(road_data, color_map, colors, bc, labels)
     print(road_data.columns.values)
     """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()"""
+    return gdf
+
+main()

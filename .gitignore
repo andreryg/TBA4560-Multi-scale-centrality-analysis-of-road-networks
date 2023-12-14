@@ -9,6 +9,8 @@ nvdbapi-clientinfo.json
 dddd.xlsx
 veg-test-5001.xlsx
 traffic-5001.xlsx
+graphs/
+spec_project_early_draft.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

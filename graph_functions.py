@@ -7,6 +7,7 @@ import matplotlib.gridspec
 import contextily as cx
 from collections import Counter
 import math
+import numpy as np
 
 def create_adjacency_list(road_dataframe):
     """
@@ -108,8 +109,8 @@ def create_color_map(G, colors):
         bc_list.append(G.nodes[node]["cent_betweenness"])
     n = math.ceil(len(bc_list)/3)
     bc_list = sorted(bc_list)
-    split1 = 60
-    split2 = 90
+    split1 = 70
+    split2 = 95
     final = [[],[],[]]
     for i,v in enumerate(bc_list):
         if i/len(bc_list) * 100 < split1:
@@ -142,17 +143,17 @@ def create_color_map(G, colors):
         elif G.nodes[node]["cent_betweenness"] < 0.2:
             color_map.append(colors[5])
             color_dict.update({node : colors[5]})"""
-        
-    return color_map, color_dict
+    labels={'#377eb8':f"Centrality: [{format(final[0][0], '.4f')}, {format(final[0][-1], '.4f')}]", '#feb24c':f"Centrality: [{format(final[1][0], '.4f')}, {format(final[1][-1], '.4f')}]", '#e41a1c':f"Centrality: [{format(final[2][0], '.4f')}, {format(final[2][-1], '.4f')}]"}
+    return color_map, color_dict, labels
 
 def calculate_centrality(G):
     bc = nx.betweenness_centrality(G)
     nx.set_node_attributes(G, bc, "cent_betweenness")
     return G, bc
 
-def basemap_plot(road_dataframe, color_map, colors, bc):
+def basemap_plot(road_dataframe, color_map, colors, bc, labels):
     fig = plt.figure()
-    grid = matplotlib.gridspec.GridSpec(3,4, hspace=0.2, wspace=0.2)
+    grid = matplotlib.gridspec.GridSpec(3,4, hspace=0.3, wspace=0.3)
     left = fig.add_subplot(grid[:,:-2])
     topright = fig.add_subplot(grid[:-2,2:])
     middleright = fig.add_subplot(grid[1:-1,2:])
@@ -167,8 +168,11 @@ def basemap_plot(road_dataframe, color_map, colors, bc):
     gdf = gpd.GeoDataFrame(road_dataframe, geometry='geometry', crs=5973)
     #kategori_mask = (gdf['vegkategori'] == 'K')
     #gdf = gdf[~kategori_mask]
-    gdf.plot(ax=left, alpha=0.9, edgecolor='k', color=gdf['color'].values.tolist(), linewidth=1)
+    
+    for i,dff in gdf.groupby('color'):
+        dff.plot(ax=left, alpha=0.9, edgecolor='k', color=dff['color'].values.tolist(), linewidth=1, label=labels.get(i))
     cx.add_basemap(left, crs=gdf.crs, source=cx.providers.CartoDB.Voyager)#, source=cx.providers.Stamen.Toner)
+    left.legend(loc='upper left')
     bc_values = list(bc.values())
     print(len(bc_values))
 
@@ -201,7 +205,7 @@ def basemap_plot(road_dataframe, color_map, colors, bc):
     tr2 = gdf.loc[gdf["color"]==colors[1], 'bc']
     tr3 = gdf.loc[gdf["color"]==colors[2], 'bc']
     topright.hist([tr1,tr2,tr3], **kwargs, bins=200, color=colors, stacked=True, density=True)
-    topright.set_title("Frequency of centrality levels")
+    #topright.set_title("Frequency of centrality levels")
     topright.set(ylabel="Frequency", xlabel="Centrality")
     topright.set_yscale('log')
     #topright.set_xscale('log')
@@ -215,9 +219,9 @@ def basemap_plot(road_dataframe, color_map, colors, bc):
     """middleright.hist(tr1, **kwargs, bins=round((tr1.max()-tr1.min())/40), color=colors[0], label="Short", stacked=True)
     middleright.hist(tr2, **kwargs, bins=round((tr2.max()-tr2.min())/40), color=colors[1], label="Medium", stacked=True)
     middleright.hist(tr3, **kwargs, bins=round((tr3.max()-tr3.min())/40), color=colors[2], label="Long", stacked=True)"""
-    middleright.hist([tr1,tr2,tr3], **kwargs, bins=100, color=colors, stacked=True, density=True)
-    middleright.set_title("Frequency of length levels")
-    middleright.set(ylabel="Frequency", xlabel="Length")
+    middleright.hist([tr1,tr2,tr3], **kwargs, bins=100, color=colors, stacked=True)
+    #middleright.set_title("Frequency of length levels")
+    middleright.set(ylabel="Frequency", xlabel="Length [m]")
     middleright.set_yscale('log')
     #middleright.hist(gdf['geometry_length'].values.tolist(), bins=50)
     """print(max(road_dataframe['geometry_length'].values.tolist()))
@@ -231,4 +235,15 @@ def basemap_plot(road_dataframe, color_map, colors, bc):
     middleright.bar({str(key)[1:-1]: value for key,value in length_range_data.items()}.keys(), length_range_data.values())"""
 
     bottomright.scatter(gdf['geometry_length'].values.tolist(), gdf['bc'].values.tolist(), color=gdf['color'].values.tolist())
+    bottomright.set(ylabel="Centrality", xlabel="Length [m]")
+    try:
+        a,b = np.polyfit(gdf['geometry_length'].values.tolist(), gdf['bc'].values.tolist(), 1)
+        bottomright.plot(gdf['geometry_length'].values.tolist(), a*gdf['geometry_length'].values+b, color='black')
+    except:
+        try:
+            a,b = np.polyfit(gdf['geometry_length'].dropna().values.tolist(), gdf['bc'].dropna().values.tolist(), 1)
+            bottomright.plot(gdf['geometry_length'].dropna().values.tolist(), a*gdf['geometry_length'].dropna().values+b, color='black')
+        except:
+            pass
     plt.show()
+    return gdf

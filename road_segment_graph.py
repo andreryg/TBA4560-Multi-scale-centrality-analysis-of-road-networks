@@ -19,9 +19,11 @@ def color_nodes_without_color(road_dataframe, G):
     while None in road_dataframe['color'].values.tolist():
         empty_df = road_dataframe.loc[road_dataframe['color'].isnull()]
         color_df = road_dataframe.loc[road_dataframe['color'].notnull()]
+        print(empty_df.size, color_df.size)
         for ind in empty_df.index:
             #print(empty_df['referanse'][ind])
             edge_list = list(G[empty_df['referanse'][ind]].keys())
+            print(len(edge_list))
             if edge_list:
                 for node in edge_list:
                     if node in color_df['referanse'].values.tolist():
@@ -29,6 +31,8 @@ def color_nodes_without_color(road_dataframe, G):
                         row_from = color_df.loc[color_df['referanse'] == node].index[0]
                         road_dataframe['color'][ind] = road_dataframe['color'][row_from]
                         break
+            else:
+                road_dataframe['color'][ind] = '#377eb8'
     color_map = []
     for node in G:
         color_map.append(road_dataframe['color'].loc[road_dataframe['referanse'] == node].tolist()[0])
@@ -36,7 +40,7 @@ def color_nodes_without_color(road_dataframe, G):
 
 if __name__ == "__main__":
     colors = ['#377eb8', '#feb24c', '#e41a1c']
-    Område = "Midtbyen"
+    Område = "Utleira"
     Kommunenummer = 5001
     polygon_area = get_area_polygon(Område, Kommunenummer)
     road_data = read_excel_to_dataframe(f"veg-test-{Kommunenummer}.xlsx")
@@ -55,10 +59,10 @@ if __name__ == "__main__":
     G.remove_edges_from(nx.selfloop_edges(G))
     G_conpact = remove_connecting_nodes(G.copy())
     G_conpact, bc = calculate_centrality(G_conpact)
-    color_map, color_dict = create_color_map(G_conpact, colors)
+    color_map, color_dict, labels = create_color_map(G_conpact, colors)
     road_data['color'] = road_data['referanse'].apply(lambda x: color_dict.get(x, None))
     road_data, color_map = color_nodes_without_color(road_data, G)
-    basemap_plot(road_data, color_map, colors, bc)
+    basemap_plot(road_data, color_map, colors, bc, labels)
     """nx.draw(G, pos=nx.kamada_kawai_layout(G), with_labels=True, font_weight='bold', node_color=color_map)
     plt.show()"""
 
